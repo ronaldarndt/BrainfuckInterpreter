@@ -1,27 +1,18 @@
-﻿using System;
-
-namespace BrainfuckInterpreter
+﻿namespace BrainfuckInterpreter
 {
     public class Memory
     {
         private readonly int m_size;
+        private readonly byte[] m_memory;
         private int m_pointer;
-        private byte[] m_memory;
 
         public Memory(int size)
         {
-            m_size = size <= 0 ? 30000 : size;
-
+            m_size = size > 0 ? size : 30000;
             m_memory = new byte[m_size];
-            Array.Fill<byte>(m_memory, 0);
-
-            m_pointer = 0;
         }
 
-        public byte GetValue()
-        {
-            return m_memory[m_pointer];
-        }
+        public byte GetValue() => m_memory[m_pointer];
 
         public void Increment()
         {

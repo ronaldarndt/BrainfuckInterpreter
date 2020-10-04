@@ -1,8 +1,7 @@
 {
   "profiles": {
     "BrainfuckInterpreter": {
-      "commandName": "Project",
-      "commandLineArgs": "helloworld.txt"
+      "commandName": "Project"
     }
   }
 }

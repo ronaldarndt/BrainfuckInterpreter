@@ -7,8 +7,9 @@ namespace BrainfuckInterpreter
 {
     public class Interpreter
     {
-        private FileStream m_file;
-        private Memory m_memory;
+        private readonly FileStream m_file;
+        private readonly Memory m_memory;
+        private readonly Dictionary<long, long> m_jumps;
 
         private const int LOOP_START = 0x005B;
         private const int LOOP_END = 0x005D;
@@ -19,13 +20,11 @@ namespace BrainfuckInterpreter
         private const int PRINT = 0x002E;
         private const int INPUT = 0x002C;
 
-        private Dictionary<long, long> m_jumps;
-
         public Interpreter(string filename, int size)
         {
             m_memory = new Memory(size);
-            m_file = File.OpenRead(filename);
             m_jumps = new Dictionary<long, long>();
+            m_file = File.OpenRead(filename);
 
             PreCalculateJumps();
         }
@@ -34,9 +33,7 @@ namespace BrainfuckInterpreter
         {
             while (m_file.Length > m_file.Position)
             {
-                var curr = m_file.ReadByte();
-
-                switch (curr)
+                switch (m_file.ReadByte())
                 {
                     case LOOP_START:
                         HandleLoopStart();
@@ -70,27 +67,23 @@ namespace BrainfuckInterpreter
 
         private void PreCalculateJumps()
         {
-            var i = 1L;
             var tempList = new List<long>();
-
             int current;
 
             while ((current = m_file.ReadByte()) != -1)
             {
                 if (current == LOOP_START)
                 {
-                    tempList.Add(i);
+                    tempList.Add(m_file.Position);
                 }
                 else if (current == LOOP_END && tempList.Count > 0)
                 {
                     var target = tempList[^1];
                     tempList.RemoveAt(tempList.Count - 1);
 
-                    m_jumps[target] = i;
-                    m_jumps[i] = target;
+                    m_jumps[target] = m_file.Position;
+                    m_jumps[m_file.Position] = target;
                 }
-
-                i++;
             }
 
             m_file.Seek(0, SeekOrigin.Begin);
@@ -142,9 +135,7 @@ namespace BrainfuckInterpreter
 
         private void Jump()
         {
-            var target = m_jumps[m_file.Position];
-
-            m_file.Seek(target, SeekOrigin.Begin);
+            m_file.Seek(m_jumps[m_file.Position], SeekOrigin.Begin);
         }
     }
 }

@@ -28,7 +28,7 @@ namespace BrainfuckInterpreter
 
             new Interpreter(filename, size).Start();
 
-            return End("Program finished", 0);
+            return 0;
         }
 
         static int End(string message, int code = 1)
